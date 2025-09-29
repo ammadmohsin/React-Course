@@ -1,31 +1,28 @@
 // import ListGroup from "./components/ListGroup"; => (import "function" from "filePath";)
-import { useState } from "react";
-import Alert from "./components/Alert";
+// import Alert from "./components/Alert";
 import Button from "./components/Button";
+import { useState } from "react";
 
 function App() {
-  const [alertVisible, setAlertVisibility] = useState(false);
-  let [count, handlecount] = useState(0);
+  const [bugs, setBugs] = useState([
+    { id: 1, title: "Bug 1", fixed: false },
+    { id: 2, title: "Bug 2", fixed: false },
+  ]);
+
+  const handleClick = () => {
+    setBugs(bugs.map((bug) => (bug.id === 1 ? { ...bug, fixed: true } : bug)));
+  };
 
   return (
     <div>
-      <Button
-        color="primary"
-        onClick={() => handlecount(count >= 20 ? (count = 20) : count + 1)}
-      >
-        Increment
-      </Button>
-      <Button
-        color="secondary"
-        onClick={() => handlecount(count <= 0 ? (count = 0) : count - 1)}
-      >
-        Decrement
-      </Button>
-      <Button color="danger" onClick={() => handlecount((count = 5))}>
-        Reset
-      </Button>
-      <p></p>
-      <h1>Count : {count}</h1>
+      <Button onClick={handleClick}>Click me</Button>
+      <div>
+        {bugs.map((bug) => (
+          <div key={bug.id}>
+            {bug.title} - {bug.fixed ? "✅ Fixed" : "❌ Not fixed"}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -67,7 +64,7 @@ export default App;
 //   );
 // }
 
-// WORKING WITH BUTTONS :
+// WORKING WITH BUTTONS (With the help of state hook) :
 // function App() {
 //   const [alertVisible, setAlertVisibility] = useState(false);
 
@@ -79,6 +76,110 @@ export default App;
 //       <Button onClick={() => setAlertVisibility(true)} color={"danger"}>
 //         Click me
 //       </Button>
+//     </div>
+//   );
+// }
+
+// DONE TWO EXERCISES RELATED TO BUTTONS : (Increment, decrement, reset)
+// function App() {
+//   const [alertVisible, setAlertVisibility] = useState(false);
+//   let [count, handlecount] = useState(0);
+
+//   return (
+//     <div>
+//       <Button
+//         color="primary"
+//         onClick={() => handlecount(count >= 20 ? (count = 20) : count + 1)}
+//       >
+//         Increment
+//       </Button>
+//       <Button
+//         color="secondary"
+//         onClick={() => handlecount(count <= 0 ? (count = 0) : count - 1)}
+//       >
+//         Decrement
+//       </Button>
+//       <Button color="danger" onClick={() => handlecount((count = 5))}>
+//         Reset
+//       </Button>
+//       <p></p>
+//       <h1>Count : {count}</h1>
+//     </div>
+//   );
+// }
+
+// DEALING WITH OBJECTS (UPDATING STATE OBJECT) :
+// function App() {
+//   const [drink, setDrink] = useState({
+//     title: "Cappecino",
+//     price: 100,
+//   });
+
+//   const handleClick = () => {
+//     setDrink({ ...drink, price: 150 });
+//   };
+
+//   return (
+//     <div>
+//       {drink.price}
+//       <Button onClick={handleClick}>Click me</Button>
+//     </div>
+//   );
+// }
+
+//DEALING WITH STATE ARRAYS (Addition, Deletion, Updating):
+// function App() {
+//   const [tags, setTags] = useState(["Happy", "excited"]);
+
+//   const handleClick = () => {
+//     //Add :
+//     // setTags([...tags, 'Angry']);
+
+//     //Delete :
+//     setTags(tags.filter((tag) => tag != "Happy"));
+
+//     //Update :
+//     setTags(tags.map((tag) => (tag === "excited" ? "notExcited" : tag)));
+//   };
+
+//   return (
+//     <div>
+//       {tags.map((tag) => tag + "  ")}
+//       <Button onClick={handleClick}>Click me</Button>
+//     </div>
+//   );
+// }
+
+// DEALING WITH STATE ARRAY OF OBJECTS :
+// function App() {
+//   const [bugs, setBugs] = useState([
+//     { id: 1, title: "Bug 1", fixed: false },
+//     { id: 2, title: "Bug 2", fixed: false },
+//   ]);
+
+//  1. Without Immer Library :
+//   const handleClick = () => {
+//     setBugs(bugs.map((bug) => (bug.id === 1 ? { ...bug, fixed: true } : bug)));
+//   };
+
+//  2. With Immer Library : (for installing immer library : go to console and type "npm i immer@version" version - 9.0.19)
+//     const handleClick = () => {
+//       setBugs(produce(draft => {
+//         const bug = draft.find(bug => bug.id === 1);
+//         if (bug) bug.fixed = true;
+//      }))
+//   };
+
+//   return (
+//     <div>
+//       <Button onClick={handleClick}>Click me</Button>
+//       <div>
+//         {bugs.map((bug) => (
+//           <div key={bug.id}>
+//             {bug.title} - {bug.fixed ? "✅ Fixed" : "❌ Not fixed"}
+//           </div>
+//         ))}
+//       </div>
 //     </div>
 //   );
 // }
