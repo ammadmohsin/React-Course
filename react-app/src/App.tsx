@@ -1,29 +1,19 @@
 // import ListGroup from "./components/ListGroup"; => (import "function" from "filePath";)
 // import Alert from "./components/Alert";
-import Button from "./components/Button";
+// import Button from "./components/Button";
+// import NavBar from "./components/NavBar";
+// import Cart from "./components/Cart";
 import { useState } from "react";
+import ExpandableText from "./components/ExpandableText";
 
 function App() {
-  const [bugs, setBugs] = useState([
-    { id: 1, title: "Bug 1", fixed: false },
-    { id: 2, title: "Bug 2", fixed: false },
-  ]);
-
-  const handleClick = () => {
-    setBugs(bugs.map((bug) => (bug.id === 1 ? { ...bug, fixed: true } : bug)));
-  };
-
   return (
-    <div>
-      <Button onClick={handleClick}>Click me</Button>
-      <div>
-        {bugs.map((bug) => (
-          <div key={bug.id}>
-            {bug.title} - {bug.fixed ? "✅ Fixed" : "❌ Not fixed"}
-          </div>
-        ))}
-      </div>
-    </div>
+    <ExpandableText>
+      Lorem ipsum dolor sit, amet consectetur adipisicing elit. Accusantium
+      libero, impedit eos minima quidem repellendus quis deleniti, porro ea
+      ratione amet vero molestias doloremque ipsa reiciendis culpa consectetur
+      ut. Officiis!
+    </ExpandableText>
   );
 }
 
@@ -182,4 +172,41 @@ export default App;
 //       </div>
 //     </div>
 //   );
+// }
+
+// SHARING STATE BETWEEN COMPONENTS :
+// function App() {
+//   const [cart, setCart] = useState(["SunScreen", "Airpods", "Umbrella"]);
+
+//   return (
+//     <div>
+//       <NavBar cartItemsCount={cart.length} />
+//       <Cart
+//         cartItems={cart}
+//         onClear={() => {
+//           setCart([]);
+//         }}
+//       ></Cart>
+//     </div>
+//   );
+// }
+
+// UPDATING STATES :
+// function App() {
+//   const [cart, setCart] = useState({
+//     discount: 0.1,
+//     items: [
+//       { id: 1, title: "Product 1", quantity: 1 },
+//       { id: 2, title: "Product 2", quantity: 1 },
+//     ],
+//   });
+
+//   const onclick = () => {
+//     setCart({
+//       ...cart,
+//       items: cart.items.map((item) =>
+//         item.id === 1 ? { ...item, quantity: 2 } : item
+//       ),
+//     });
+//   };
 // }
