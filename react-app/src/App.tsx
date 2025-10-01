@@ -3,17 +3,16 @@
 // import Button from "./components/Button";
 // import NavBar from "./components/NavBar";
 // import Cart from "./components/Cart";
-import { useState } from "react";
-import ExpandableText from "./components/ExpandableText";
+// import ExpandableText from "./components/ExpandableText";
+// import { useState } from "react";
+import React from "react";
+import Form from "./components/Form";
 
 function App() {
   return (
-    <ExpandableText>
-      Lorem ipsum dolor sit, amet consectetur adipisicing elit. Accusantium
-      libero, impedit eos minima quidem repellendus quis deleniti, porro ea
-      ratione amet vero molestias doloremque ipsa reiciendis culpa consectetur
-      ut. Officiis!
-    </ExpandableText>
+    <div>
+      <Form />
+    </div>
   );
 }
 
@@ -209,4 +208,16 @@ export default App;
 //       ),
 //     });
 //   };
+// }
+
+// ACtivity : Create a Expandabale text component.
+// function App() {
+//   return (
+//     <ExpandableText maxChars = {10}>
+//       Lorem ipsum dolor sit, amet consectetur adipisicing elit. Accusantium
+//       libero, impedit eos minima quidem repellendus quis deleniti, porro ea
+//       ratione amet vero molestias doloremque ipsa reiciendis culpa consectetur
+//       ut. Officiis!
+//     </ExpandableText>
+//   );
 // }
