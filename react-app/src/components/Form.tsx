@@ -1,10 +1,16 @@
 import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { FieldValues, useForm } from "react-hook-form";
+
+interface FormData {
+  name: string;
+  age: number;
+}
 
 const Form = () => {
   // There re 3 ways to handle the input.
   // 1. By using ref (useRef State)
   // 2. By using changeEvent (onChange)
-  // 3. By React hook Form (built-in library)
+  // 3. By React hook Form (built-in library) (to install : "npm i react-hook-form@7.43" then import useForm from react-hook-form);
 
   // 1. By using ref (useRef State) :
   //   const nameRef = useRef<HTMLInputElement>(null);
@@ -19,58 +25,84 @@ const Form = () => {
   //   };
 
   // 2. By using changeEvent (onChange) :
-  const [person, setPerson] = useState({
-    name: "",
-    age: "",
-  });
+  // const [person, setPerson] = useState({
+  //   name: "",
+  //   age: "",
+  // });
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    console.log(person);
-  };
+  // const handleSubmit = (event: FormEvent) => {
+  //   event.preventDefault();
+  //   console.log(person);
+  // };
 
   // Either you can create a handleChange function like this or set the onChange event inside input element.
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPerson({
-      ...person,
-      [event.target.id]: event.target.value,
-    });
-  };
+  // const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  //   setPerson({
+  //     ...person,
+  //     [event.target.id]: event.target.value,
+  //   });
+  // };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
+  const onSubmit = handleSubmit((data) => console.log(data)); //OR
+  // const onSubmit = (data: FieldValues) => console.log(data); (now pass handleSubmit(onSubmit) inside form's onSubmit)
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={onSubmit}>
       <div className="mb-3">
         <label htmlFor="name" className="form-label">
           Name :
         </label>
 
         <input
-          onChange={handleChange}
+          // ref={nameRef}
+          // onChange={handleChange}
           //   onChange={(event) =>
           //     setPerson({ ...person, name: event.target.value })
           //   }
-          value={person.name} //only when using onChange
-          /*ref={nameRef}*/
+          // value={person.name} //only when using onChange
+          {...register("name", { required: true, minLength: 3 })}
           id="name"
           type="text"
           className="form-control"
         />
+        {errors.name?.type === "required" && (
+          <p className="text-danger">This field cannot be empty. </p>
+        )}
+        {errors.name?.type === "minLength" && (
+          <p className="text-danger">
+            text should be atleast 3 characters long.
+          </p>
+        )}
       </div>
       <div className="mb-3">
         <label htmlFor="age" className="form-label">
           Age :
         </label>
         <input
-          onChange={handleChange}
+          // ref={nameRef}
+          // onChange={handleChange}
           //   onChange={(event) =>
           //     setPerson({ ...person, age: parseInt(event.target.value) })
           //   }
-          value={person.age} //only when using onChange
-          /*ref={nameRef}*/
+          // value={person.age} //only when using onChange
+          {...register("age", { required: true, minLength: 2 })}
           id="age"
           type="number"
           className="form-control"
         />
+        {errors.age?.type === "required" && (
+          <p className="text-danger">This field cannot be empty. </p>
+        )}
+        {errors.age?.type === "minLength" && (
+          <p className="text-danger">
+            text should be atleast 2 characters long.
+          </p>
+        )}
       </div>
       <button className="btn btn-primary" type="submit">
         Submit
@@ -79,8 +111,8 @@ const Form = () => {
   );
 };
 
-// While working with onChange event, input value and our state value can clash as we are
+// Ps : While working with onChange event, input value and our state value can clash as we are
 // saving value inside our state object but there is also input's value handler that can clash with it
-// at some point. so we need to make them single on same page as you can see in input tag.
+// at some point. so we need to gather them on a same page as you can see in input tag.
 
 export default Form;
