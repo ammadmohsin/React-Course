@@ -1,10 +1,21 @@
 import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface FormData {
-  name: string;
-  age: number;
-}
+const schema = z.object({
+  name: z.string().min(3, { message: "Name cannot be less than 3 characters" }),
+  age: z
+    .number({ invalid_type_error: "Please input number only" })
+    .min(18, { message: "Age should be greater than or equal to 18" }),
+});
+
+type FormData = z.infer<typeof schema>;
+
+// interface FormData { // Only used in onChange Event
+//   name: string;
+//   age: number;
+// }
 
 const Form = () => {
   // There re 3 ways to handle the input.
@@ -43,11 +54,12 @@ const Form = () => {
   //   });
   // };
 
+  // 3. By using React Hook Form :
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>();
+    formState: { errors, isValid },
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
   const onSubmit = handleSubmit((data) => console.log(data)); //OR
   // const onSubmit = (data: FieldValues) => console.log(data); (now pass handleSubmit(onSubmit) inside form's onSubmit)
 
@@ -65,19 +77,12 @@ const Form = () => {
           //     setPerson({ ...person, name: event.target.value })
           //   }
           // value={person.name} //only when using onChange
-          {...register("name", { required: true, minLength: 3 })}
+          {...register("name")}
           id="name"
           type="text"
           className="form-control"
         />
-        {errors.name?.type === "required" && (
-          <p className="text-danger">This field cannot be empty. </p>
-        )}
-        {errors.name?.type === "minLength" && (
-          <p className="text-danger">
-            text should be atleast 3 characters long.
-          </p>
-        )}
+        {errors.name && <p className="text-danger">{errors.name.message} </p>}
       </div>
       <div className="mb-3">
         <label htmlFor="age" className="form-label">
@@ -90,21 +95,14 @@ const Form = () => {
           //     setPerson({ ...person, age: parseInt(event.target.value) })
           //   }
           // value={person.age} //only when using onChange
-          {...register("age", { required: true, minLength: 2 })}
+          {...register("age", { valueAsNumber: true })}
           id="age"
           type="number"
           className="form-control"
         />
-        {errors.age?.type === "required" && (
-          <p className="text-danger">This field cannot be empty. </p>
-        )}
-        {errors.age?.type === "minLength" && (
-          <p className="text-danger">
-            text should be atleast 2 characters long.
-          </p>
-        )}
+        {errors.age && <p className="text-danger">{errors.age.message} </p>}
       </div>
-      <button className="btn btn-primary" type="submit">
+      <button /*disabled={!isValid}*/ className="btn btn-primary" type="submit">
         Submit
       </button>
     </form>

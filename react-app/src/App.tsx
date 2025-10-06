@@ -4,14 +4,41 @@
 // import NavBar from "./components/NavBar";
 // import Cart from "./components/Cart";
 // import ExpandableText from "./components/ExpandableText";
-// import { useState } from "react";
+// import Form from "./components/Form";
 import React from "react";
-import Form from "./components/Form";
+import { useState } from "react";
+import ExpenseForm from "./expense-tracker/components/ExpenseForm";
+import ExpenseList from "./expense-tracker/components/ExpenseList";
+import ExpenseFilter from "./expense-tracker/components/ExpenseFilter";
 
 function App() {
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  const [expenses, setExpenses] = useState([
+    { id: 1, description: "aaa", amount: 10, category: "Utilities" },
+    { id: 2, description: "bbb", amount: 10, category: "Groceries" },
+    { id: 3, description: "ccc", amount: 10, category: "Entertainment" },
+    { id: 4, description: "ddd", amount: 10, category: "Utilities" },
+  ]);
+
+  const visibleCategories = selectedCategory
+    ? expenses.filter((expense) => expense.category === selectedCategory)
+    : expenses;
+
+  const handleOnDelete = (id: number) => {
+    setExpenses(expenses.filter((expense) => expense.id != id));
+    console.log("Deleted : " + id);
+  };
+
   return (
     <div>
-      <Form />
+      <ExpenseForm ></ExpenseForm>
+      <div className="mb-4 mt-4">
+        <ExpenseFilter
+          onSelectCategory={(category) => setSelectedCategory(category)}
+        ></ExpenseFilter>
+      </div>
+      <ExpenseList expenses={visibleCategories} onDelete={handleOnDelete} />
     </div>
   );
 }
