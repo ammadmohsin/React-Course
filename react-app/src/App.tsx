@@ -5,45 +5,74 @@
 // import Cart from "./components/Cart";
 // import ExpandableText from "./components/ExpandableText";
 // import Form from "./components/Form";
-import React from "react";
-import { useState } from "react";
-import ExpenseForm from "./expense-tracker/components/ExpenseForm";
-import ExpenseList from "./expense-tracker/components/ExpenseList";
-import ExpenseFilter from "./expense-tracker/components/ExpenseFilter";
+// import ExpenseForm from "./expense-tracker/components/ExpenseForm";
+// import ExpenseList from "./expense-tracker/components/ExpenseList";
+// import ExpenseFilter from "./expense-tracker/components/ExpenseFilter";
+// import ProductList from "./components/ProductList";
+// import React, { useRef } from "react";
+import axios, { AxiosError, CanceledError } from "axios";
+import { useState, useEffect } from "react";
+import { Controller } from "react-hook-form";
+import { literal } from "zod";
 
-// Expense Tracker Project :
-function App() {
-  const [selectedCategory, setSelectedCategory] = useState("");
+// Axios Library => working on data : (jsonplaceholder-dummy data)
+// 1. fetching data : axios.get()
+// 2. understanding Promise : axios.then()
+// 3. handlig errors : axios.catch()
+// 4. working with async/await
+// 5. cancelling a fetch request : controller: AbortController
+interface User {
+  id: number;
+  name: string;
+}
+function App({ id, name }: User) {
+  const [users, setUsers] = useState<User[]>([]);
+  const [error, setError] = useState("");
 
-  const [expenses, setExpenses] = useState([
-    { id: 1, description: "aaa", amount: 10, category: "Utilities" },
-    { id: 2, description: "bbb", amount: 10, category: "Groceries" },
-    { id: 3, description: "ccc", amount: 10, category: "Entertainment" },
-    { id: 4, description: "ddd", amount: 10, category: "Utilities" },
-  ]);
+  // 1. With async and await :
+  useEffect(() => {
+    const controller = new AbortController();
 
-  const visibleCategories = selectedCategory
-    ? expenses.filter((expense) => expense.category === selectedCategory)
-    : expenses;
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get<User[]>(
+          "https://jsonplaceholder.typicode.com/users",
+          { signal: controller.signal }
+        );
+        setUsers(res.data);
+      } catch (err) {
+        // we cannot type cast in catch block
+        setError((err as AxiosError).message);
+      }
+    };
+    fetchUsers();
+    return () => controller.abort();
+  }, []);
 
-  const handleOnDelete = (id: number) => {
-    setExpenses(expenses.filter((expense) => expense.id != id));
-    console.log("Deleted : " + id);
-  };
+  // 2. (without async/await) With axios Library :
+  // useEffect(() => {
+  //   const controller = new AbortController();
+  //   axios
+  //     .get<User[]>("https://jsonplaceholder.typicode.com/users", {
+  //       signal: controller.signal,
+  //     })
+  //     .then((response) => setUsers(response.data))
+  //     .catch((err) => {
+  //       if (err instanceof CanceledError) return;
+  //       setError(err.message);
+  //     });
+
+  //   return () => controller.abort();
+  // });
 
   return (
     <div>
-      <ExpenseForm
-        onSubmit={(expense) =>
-          setExpenses([...expenses, { id: expenses.length + 1, ...expense }])
-        }
-      ></ExpenseForm>
-      <div className="mb-4 mt-4">
-        <ExpenseFilter
-          onSelectCategory={(category) => setSelectedCategory(category)}
-        ></ExpenseFilter>
-      </div>
-      <ExpenseList expenses={visibleCategories} onDelete={handleOnDelete} />
+      {error && <p className="text-danger">{error}</p>}
+      <ul>
+        {users.map((user) => (
+          <li key={user.id}>{user.name}</li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -252,4 +281,100 @@ export default App;
 //       ut. Officiis!
 //     </ExpandableText>
 //   );
+// }
+
+// Expense Tracker Project :
+// function App() {
+//   const [selectedCategory, setSelectedCategory] = useState("");
+
+//   const [expenses, setExpenses] = useState([
+//     { id: 1, description: "aaa", amount: 10, category: "Utilities" },
+//     { id: 2, description: "bbb", amount: 10, category: "Groceries" },
+//     { id: 3, description: "ccc", amount: 10, category: "Entertainment" },
+//     { id: 4, description: "ddd", amount: 10, category: "Utilities" },
+//   ]);
+
+//   const visibleCategories = selectedCategory
+//     ? expenses.filter((expense) => expense.category === selectedCategory)
+//     : expenses;
+
+//   const handleOnDelete = (id: number) => {
+//     setExpenses(expenses.filter((expense) => expense.id != id));
+//     console.log("Deleted : " + id);
+//   };
+
+//   return (
+//     <div>
+//       <ExpenseForm
+//         onSubmit={(expense) =>
+//           setExpenses([...expenses, { id: expenses.length + 1, ...expense }])
+//         }
+//       ></ExpenseForm>
+//       <div className="mb-4 mt-4">
+//         <ExpenseFilter
+//           onSelectCategory={(category) => setSelectedCategory(category)}
+//         ></ExpenseFilter>
+//       </div>
+//       <ExpenseList expenses={visibleCategories} onDelete={handleOnDelete} />
+//     </div>
+//   );
+// }
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//                                        CONNECTING TO THE BACKEND :
+// working with useEffect() hook:
+// function App() {
+//   const ref = useRef<HTMLInputElement>(null);
+
+//   // afterRender
+//   useEffect(() => {
+//     // Side Effect :
+//     if (ref.current) ref.current.focus();
+//   });
+
+//   useEffect(() => {
+//     document.title = "Ammad React Course";
+//   });
+
+//   return (
+//     <div>
+//       <input ref={ref} type="text" className="form-control" />
+//     </div>
+//   );
+// }
+
+// Effect Dependencies :
+// function App() {
+//   const [category, setCategory] = useState("");
+
+//   return (
+//     <div>
+//       <select
+//         className="form-select"
+//         defaultValue={""}
+//         onChange={(event) => setCategory(event.target.value)}
+//       >
+//         <option value="" disabled>
+//           {" "}
+//           Select Category
+//         </option>
+//         <option value="Clothing">Clothing</option>
+//         <option value="Household">Household</option>
+//       </select>
+//       <ProductList category={category}></ProductList>
+//     </div>
+//   );
+// }
+
+// Effect Dependencies :
+// function App() {
+//   const connect = () => console.log("Connecting ...");
+//   const disconect = () => console.log("Disconnecting ...");
+
+//   useEffect(() => {
+//     connect();
+//     return () => disconect();
+//   });
+
+//   return <div></div>;
 // }
