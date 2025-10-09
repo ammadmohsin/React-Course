@@ -10,10 +10,10 @@
 // import ExpenseFilter from "./expense-tracker/components/ExpenseFilter";
 // import ProductList from "./components/ProductList";
 // import React, { useRef } from "react";
-import axios, { AxiosError, CanceledError } from "axios";
+// import axios, { AxiosError, CanceledError } from "axios";
 import { useState, useEffect } from "react";
+import apiClient, { CanceledError, AxiosError } from "./services/api-client";
 import { Controller } from "react-hook-form";
-import { literal } from "zod";
 
 // Axios Library => working on data : (jsonplaceholder-dummy data)
 // 1. fetching data : axios.get()
@@ -21,56 +21,128 @@ import { literal } from "zod";
 // 3. handlig errors : axios.catch()
 // 4. working with async/await
 // 5. cancelling a fetch request : controller: AbortController
+// 6. setting up Loading Indicator
 interface User {
   id: number;
   name: string;
 }
+
 function App({ id, name }: User) {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState("");
+  const [isLoading, setLoading] = useState(true);
 
   // 1. With async and await :
+  // useEffect(() => {
+  //   const controller = new AbortController();
+
+  //   const fetchUsers = async () => {
+  //     try {
+  //       const res = await axios.get<User[]>(
+  //         "https://jsonplaceholder.typicode.com/users",
+  //         { signal: controller.signal }
+  //       );
+  //       setUsers(res.data);
+  //     } catch (err) {
+  //       // we cannot type cast in catch block
+  //       setError((err as AxiosError).message);
+  //     }
+  //   };
+  //   fetchUsers();
+  //   return () => controller.abort();
+  // }, []);
+
+  // 2. (without async/await) With axios Library :
   useEffect(() => {
     const controller = new AbortController();
+    apiClient
+      .get<User[]>("/users", {
+        signal: controller.signal,
+      })
+      .then((response) => {
+        setUsers(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (err instanceof CanceledError) return;
+        setError(err.message);
+        setLoading(false);
+      });
+    // .finally(() => {
+    //   setLoading(false);
+    // });
 
-    const fetchUsers = async () => {
-      try {
-        const res = await axios.get<User[]>(
-          "https://jsonplaceholder.typicode.com/users",
-          { signal: controller.signal }
-        );
-        setUsers(res.data);
-      } catch (err) {
-        // we cannot type cast in catch block
-        setError((err as AxiosError).message);
-      }
-    };
-    fetchUsers();
     return () => controller.abort();
   }, []);
 
-  // 2. (without async/await) With axios Library :
-  // useEffect(() => {
-  //   const controller = new AbortController();
-  //   axios
-  //     .get<User[]>("https://jsonplaceholder.typicode.com/users", {
-  //       signal: controller.signal,
-  //     })
-  //     .then((response) => setUsers(response.data))
-  //     .catch((err) => {
-  //       if (err instanceof CanceledError) return;
-  //       setError(err.message);
-  //     });
+  // Deleting Data :
+  const deleteUser = (user: User) => {
+    const originalUsers = [...users];
+    setUsers(users.filter((u) => u.id !== user.id));
+    apiClient.delete("/users/" + user.id).catch((err) => {
+      setError(err.message);
+      setUsers(originalUsers);
+    });
+  };
 
-  //   return () => controller.abort();
-  // });
+  // Creating Data :
+  const addUser = () => {
+    const originalUsers = [...users];
+    const newUser = { id: 0, name: "Ammad Mohsin" };
+    setUsers([newUser, ...users]);
+
+    apiClient
+      .post("/users", newUser)
+      .then((res) => setUsers([res.data, ...users]))
+      .catch((err) => {
+        setError(err.message);
+        setUsers(originalUsers);
+      });
+  };
+
+  // Updating Data :
+  const updateUser = (user: User) => {
+    const originalUsers = [...users];
+    const updatedUser = { ...user, name: user.name + " ! " };
+    setUsers(users.map((u) => (u.id === user.id ? updatedUser : u)));
+
+    apiClient.patch("/users/" + user.id, updatedUser).catch((err) => {
+      setError(err.message);
+      setUsers(originalUsers);
+    });
+  };
 
   return (
     <div>
+      {isLoading && <p className="spinner-border"></p>}
       {error && <p className="text-danger">{error}</p>}
-      <ul>
+      <div className="mb-3">
+        <button className="btn btn-primary" onClick={addUser}>
+          Add
+        </button>
+      </div>
+      <ul className="list-group">
         {users.map((user) => (
-          <li key={user.id}>{user.name}</li>
+          <li
+            key={user.id}
+            className="list-group-item d-flex justify-content-between"
+          >
+            {user.name}
+            <div>
+              <button
+                className="btn btn-outline-success mx-4"
+                onClick={() => updateUser(user)}
+              >
+                Update
+              </button>
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => deleteUser(user)}
+              >
+                Delete
+              </button>
+            </div>
+          </li>
         ))}
       </ul>
     </div>
